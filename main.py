@@ -1,6 +1,6 @@
 # main.py - Archivo principal del juego CON BIFURCACIONES (REFACTORIZADO)
 
-import pygame
+import pygame #type:ignore
 import sys
 from config import *
 from personaje import Personaje
@@ -182,6 +182,8 @@ class Juego:
         return True  # Continuar ejecutando
     
     def actualizar(self, teclas, mouse_pos):
+        self.fondo.tiempo_rio += 0.02  # Incrementar el tiempo para animar el río
+        self.fondo.actualizar_rio()  # Actualizar animación del río
         """Actualiza la lógica del juego según el estado actual"""
         if self.estado == "jugando":
             # Mover personaje

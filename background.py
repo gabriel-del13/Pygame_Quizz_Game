@@ -9,6 +9,8 @@ class Fondo:
         self.alto_mundo = 5000
         self.superficie = pygame.Surface((self.ancho_mundo, self.alto_mundo))
         random.seed(42)
+        self.tiempo_rio = 0
+        self._generar_puntos_rio() 
         self.generar_mundo()
 
     def generar_mundo(self):
@@ -221,7 +223,8 @@ class Fondo:
         for offset_y in [-30, -10, 10, 30]:
             corriente = []
             for x, y in puntos[::3]:
-                jitter = math.sin(x * 0.04 + offset_y) * 8
+                # Agregar tiempo_rio para animar
+                jitter = math.sin(x * 0.04 + offset_y + self.tiempo_rio * 2) * 8
                 corriente.append((int(x), int(y) + offset_y + int(jitter)))
             if len(corriente) > 1:
                 pygame.draw.lines(self.superficie, (60, 150, 210), False, corriente, 2)
@@ -244,6 +247,10 @@ class Fondo:
                 pygame.draw.circle(self.superficie, (80, 80, 90), (rx, ry), r)
                 pygame.draw.circle(self.superficie, (110, 110, 120), (rx - 2, ry - 2), r // 2)
 
+    def actualizar_rio(self):
+        """Redibuja solo el río con la animación actualizada"""
+        self._generar_puntos_rio()
+        self.dibujar_rio_epico()
     # -------------------------------------------------------
     #  ÁRBOLES (3 tipos: pino, roble, sauce)
     # -------------------------------------------------------
