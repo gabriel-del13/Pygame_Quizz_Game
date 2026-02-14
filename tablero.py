@@ -4,15 +4,16 @@ import pygame
 from config import *
 
 class Casilla:
-    def __init__(self, x, y, id_casilla, numero_display, color, siguientes=None):
+    def __init__(self, x, y, id_casilla, numero_display, color, siguientes=None, tiene_pregunta=True):
         self.x = x
         self.y = y
         self.id = id_casilla
         self.numero = numero_display
         self.color = color
         self.completada = False
-        self.resultado = None  # NUEVO: Puede ser "acierto" o "fallo"
+        self.resultado = None  # Puede ser "acierto" o "fallo"
         self.es_final = (id_casilla == "META")
+        self.tiene_pregunta = tiene_pregunta  
         self.siguientes = siguientes if siguientes else []
         
     def contiene_personaje(self, px, py):
@@ -102,64 +103,64 @@ class Tablero:
         # ============ CAMINO PRINCIPAL ============
         
         # Casilla 1 (inicio)
-        casillas.append(Casilla(x_izq, filas[0], "1", "1", MARRON_CLARO, siguientes=["2"]))
+        casillas.append(Casilla(x_izq, filas[0], "1", "1", MARRON_CLARO, siguientes=["2"], tiene_pregunta=True))
         print(f"Casilla 1: x={x_izq}, y={filas[0]} -> siguiente: 2")
         
         # Casilla 2
-        casillas.append(Casilla(x_izq, filas[1], "2", "2", MARRON_OSCURO, siguientes=["3"]))
+        casillas.append(Casilla(x_izq, filas[1], "2", "2", MARRON_OSCURO, siguientes=["3"], tiene_pregunta=True))
         print(f"Casilla 2: x={x_izq}, y={filas[1]} -> siguiente: 3")
         
         # Casilla 3 (BIFURCACIÓN: puede ir a 4 o a 3.1)
-        casillas.append(Casilla(x_izq, filas[2], "3", "3", MARRON_CLARO, siguientes=["4", "3.1"]))
+        casillas.append(Casilla(x_izq, filas[2], "3", "3", MARRON_CLARO, siguientes=["4", "3.1"], tiene_pregunta=True))
         print(f"Casilla 3: x={x_izq}, y={filas[2]} -> siguientes: 4 (derecha) o 3.1 (izquierda alternativo)")
         
         # ============ CAMINO ALTERNATIVO (desde 3) ============
         
         # Casilla 3.1 (camino alternativo - izquierda de la 3)
-        casillas.append(Casilla(x_extra_izq, filas[2], "3.1", "3.1", AZUL, siguientes=["3.2"]))
+        casillas.append(Casilla(x_extra_izq, filas[2], "3.1", "3.1", AZUL, siguientes=["3.2"], tiene_pregunta=True))
         print(f"Casilla 3.1 (ALT): x={x_extra_izq}, y={filas[2]} -> siguiente: 3.2")
         
         # Casilla 3.2 (sube)
-        casillas.append(Casilla(x_extra_izq, filas[3], "3.2", "3.2", AZUL, siguientes=["3.3"]))
+        casillas.append(Casilla(x_extra_izq, filas[3], "3.2", "3.2", AZUL, siguientes=["3.3"], tiene_pregunta=True))
         print(f"Casilla 3.2 (ALT): x={x_extra_izq}, y={filas[3]} -> siguiente: 3.3")
         
         # Casilla 3.3 (sube más y se une al 9)
-        casillas.append(Casilla(x_extra_izq, filas[4], "3.3", "3.3", AZUL, siguientes=["9"]))
+        casillas.append(Casilla(x_extra_izq, filas[4], "3.3", "3.3", AZUL, siguientes=["9"], tiene_pregunta=True))
         print(f"Casilla 3.3 (ALT): x={x_extra_izq}, y={filas[4]} -> siguiente: 9")
         
         # ============ CONTINUACIÓN CAMINO PRINCIPAL ============
         
         # Casilla 4 (desde 3, camino principal)
-        casillas.append(Casilla(x_centro, filas[2], "4", "4", MARRON_OSCURO, siguientes=["5"]))
+        casillas.append(Casilla(x_centro, filas[2], "4", "4", MARRON_OSCURO, siguientes=["5"], tiene_pregunta=True))
         print(f"Casilla 4: x={x_centro}, y={filas[2]} -> siguiente: 5")
         
         # Casilla 5
-        casillas.append(Casilla(x_der, filas[2], "5", "5", MARRON_CLARO, siguientes=["6"]))
+        casillas.append(Casilla(x_der, filas[2], "5", "5", MARRON_CLARO, siguientes=["6"], tiene_pregunta=True))
         print(f"Casilla 5: x={x_der}, y={filas[2]} -> siguiente: 6")
         
         # Casilla 6
-        casillas.append(Casilla(x_der, filas[3], "6", "6", MARRON_OSCURO, siguientes=["7"]))
+        casillas.append(Casilla(x_der, filas[3], "6", "6", MARRON_OSCURO, siguientes=["7"], tiene_pregunta=True))
         print(f"Casilla 6: x={x_der}, y={filas[3]} -> siguiente: 7")
         
         # Casilla 7
-        casillas.append(Casilla(x_der, filas[4], "7", "7", MARRON_CLARO, siguientes=["8"]))
+        casillas.append(Casilla(x_der, filas[4], "7", "7", MARRON_CLARO, siguientes=["8"], tiene_pregunta=True))
         print(f"Casilla 7: x={x_der}, y={filas[4]} -> siguiente: 8")
         
         # Casilla 8
-        casillas.append(Casilla(x_centro, filas[4], "8", "8", MARRON_OSCURO, siguientes=["9"]))
+        casillas.append(Casilla(x_centro, filas[4], "8", "8", MARRON_OSCURO, siguientes=["9"], tiene_pregunta=True))
         print(f"Casilla 8: x={x_centro}, y={filas[4]} -> siguiente: 9")
         
         # Casilla 9 (UNIÓN: aquí llegan tanto el camino principal como el alternativo)
-        casillas.append(Casilla(x_izq, filas[4], "9", "9", MARRON_CLARO, siguientes=["10"]))
+        casillas.append(Casilla(x_izq, filas[4], "9", "9", MARRON_CLARO, siguientes=["10"], tiene_pregunta=True))
         print(f"Casilla 9 (UNIÓN): x={x_izq}, y={filas[4]} -> siguiente: 10")
         
         # Casilla 10
-        casillas.append(Casilla(x_izq, filas[5], "10", "10", MARRON_OSCURO, siguientes=["META"]))
+        casillas.append(Casilla(x_izq, filas[5], "10", "10", MARRON_OSCURO, siguientes=["META"], tiene_pregunta=True))
         print(f"Casilla 10: x={x_izq}, y={filas[5]} -> siguiente: META")
         
         # Casilla META
-        casillas.append(Casilla(x_izq, filas[6], "META", "META", DORADO, siguientes=[]))
-        print(f"Casilla META: x={x_izq}, y={filas[6]} -> FIN")
+        casillas.append(Casilla(x_izq, filas[6], "META", "META", DORADO, siguientes=[], tiene_pregunta=False))
+        print(f"Casilla META (SOLO DECORATIVA): x={x_izq}, y={filas[6]} -> FIN")
         
         print("==========================================\n")
         

@@ -41,15 +41,6 @@ class PantallaVictoria:
         if tiempo_actual - self.gif_tiempo > 70:  # Velocidad del GIF
             self.gif_frame_actual = (self.gif_frame_actual + 1) % len(self.gif_frames)
             self.gif_tiempo = tiempo_actual
-
-        """Actualiza el frame actual del GIF triste"""
-        if not self.gif_frames_triste:
-            return
-        
-        tiempo_actual = pygame.time.get_ticks()
-        if tiempo_actual - self.gif_tiempo > 70:  # Velocidad del GIF
-            self.gif_frame_actual = (self.gif_frame_actual + 1) % len(self.gif_frames)
-            self.gif_tiempo = tiempo_actual
     
     def dibujar(self, pantalla, vidas):
         """Dibuja la pantalla de victoria"""
@@ -106,7 +97,7 @@ class PantallaGameOver:
     def __init__(self, ruta_gif_triste="sticker_sad.gif"):
         # Cargar y procesar GIF
         try:
-            self.gif_triste= Image.open(ruta_gif_triste)
+            self.gif_triste = Image.open(ruta_gif_triste)
             self.gif_triste_frames = []
             for frame in ImageSequence.Iterator(self.gif_triste):
                 # Convertir cada frame a formato Pygame
@@ -123,19 +114,8 @@ class PantallaGameOver:
         
         self.gif_frame_actual = 0
         self.gif_tiempo = 0
-        self.particulas_confeti = []
-        self.confeti_generado = False
     
     def actualizar_gif(self):
-        """Actualiza el frame actual del GIF"""
-        if not self.gif_triste_frames:
-            return
-        
-        tiempo_actual = pygame.time.get_ticks()
-        if tiempo_actual - self.gif_tiempo > 70:  # Velocidad del GIF
-            self.gif_frame_actual = (self.gif_frame_actual + 1) % len(self.gif_triste_frames)
-            self.gif_tiempo = tiempo_actual
-
         """Actualiza el frame actual del GIF triste"""
         if not self.gif_triste_frames:
             return
@@ -145,7 +125,7 @@ class PantallaGameOver:
             self.gif_frame_actual = (self.gif_frame_actual + 1) % len(self.gif_triste_frames)
             self.gif_tiempo = tiempo_actual
 
-    def dibujar(self, pantalla):
+    def dibujar(self, pantalla, vidas):
         """Dibuja la pantalla de game over"""
         # Overlay rojo
         overlay = pygame.Surface((ANCHO, ALTO))
@@ -158,11 +138,24 @@ class PantallaGameOver:
         titulo = fuente_titulo.render("GAME OVER", True, BLANCO)
         pantalla.blit(titulo, (ANCHO//2 - titulo.get_width()//2, 180))
         
-        # Subtítulo
+        # Mensaje según vidas
         fuente_sub = pygame.font.Font(None, 38)
-        subtitulo = fuente_sub.render("Se acabaron las vidas", True, BLANCO)
+        if vidas <= 0:
+            subtitulo = fuente_sub.render("Te quedaste sin vidas", True, BLANCO)
+        else:
+            # Caso especial: fallaste la última pregunta con vidas restantes
+            subtitulo = fuente_sub.render("Fallaste en la última pregunta", True, BLANCO)
+        
         pantalla.blit(subtitulo, (ANCHO//2 - subtitulo.get_width()//2, 280))
-
+        
+        # Estadísticas
+        fuente_stats = pygame.font.Font(None, 32)
+        if vidas > 0:
+            stats = fuente_stats.render(f"Te quedaron {vidas} vida(s)", True, BLANCO)
+        else:
+            stats = fuente_stats.render("Vidas: 0", True, BLANCO)
+        pantalla.blit(stats, (ANCHO//2 - stats.get_width()//2, 340))
+        
         # Animar y dibujar GIF
         if self.gif_triste_frames:
             self.actualizar_gif()

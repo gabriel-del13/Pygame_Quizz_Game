@@ -47,9 +47,16 @@ class Juego:
     
     def mostrar_pregunta(self):
         """Cambia el estado a pregunta y configura la pregunta actual"""
-        self.estado = "pregunta"
-        pregunta = obtener_pregunta(self.casilla_actual_id)
-        self.pantalla_pregunta.configurar_pregunta(pregunta)
+        casilla_actual = self.tablero.obtener_casilla_por_id(self.casilla_actual_id)
+        # Solo mostrar pregunta si la casilla tiene pregunta
+        if casilla_actual.tiene_pregunta:
+            self.estado = "pregunta"
+            pregunta = obtener_pregunta(self.casilla_actual_id)
+            self.pantalla_pregunta.configurar_pregunta(pregunta)
+        else:
+            # Si llegamos a META (sin pregunta), ya ganamos
+            if self.casilla_actual_id == "META":
+                self.estado = "ganado"
     
     def verificar_respuesta(self, indice):
         """Verifica si la respuesta es correcta y actualiza el estado del juego"""
@@ -63,13 +70,12 @@ class Juego:
             # --- RESPUESTA CORRECTA ---
             casilla_actual.resultado = "acierto"  # Marcamos casilla como verde
             
-            if self.casilla_actual_id == "META":
-                self.estado = "ganado"
         else:
             # --- RESPUESTA INCORRECTA ---
             casilla_actual.resultado = "fallo"  # Marcamos casilla como roja
             self.vidas -= 1
             
+            # SOLO PERDER SI TE QUEDASTE SIN VIDAS
             if self.vidas <= 0:
                 self.estado = "perdido"
     
@@ -86,14 +92,24 @@ class Juego:
         """Maneja la lógica después de que el mensaje de feedback termine"""
         casilla_actual = self.tablero.obtener_casilla_por_id(self.casilla_actual_id)
         
+        # Si ya perdimos (sin vidas), no hacer nada más
+        if self.estado == "perdido":
+            return
+        
         # Verificar si hay bifurcación
         if len(casilla_actual.siguientes) > 1:
             self.estado = "eligiendo_camino"
             self.pantalla_eleccion.configurar_opciones(casilla_actual.siguientes)
         elif len(casilla_actual.siguientes) == 1:
             # Avanzar automáticamente a la siguiente casilla
-            self.avanzar_a_casilla(casilla_actual.siguientes[0])
-            self.estado = "jugando"
+            siguiente_id = casilla_actual.siguientes[0]
+            self.avanzar_a_casilla(siguiente_id)
+            
+            # Si la siguiente casilla es META, ganamos
+            if siguiente_id == "META":
+                self.estado = "ganado"
+            else:
+                self.estado = "jugando"
         else:
             # No hay más casillas (fin del camino)
             self.estado = "jugando"
@@ -221,7 +237,7 @@ class Juego:
             return boton
         
         elif self.estado == "perdido":
-            boton = self.pantalla_game_over.dibujar(self.pantalla)
+            boton = self.pantalla_game_over.dibujar(self.pantalla, self.vidas)
             if boton:
                 boton.actualizar_hover(mouse_pos)
             return boton
