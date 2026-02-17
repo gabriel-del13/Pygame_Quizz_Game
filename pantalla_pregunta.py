@@ -1,5 +1,6 @@
 # pantalla_pregunta.py - Gestión de la pantalla de preguntas
 
+import math
 import pygame
 from config import *
 from camara_ui import Boton
@@ -16,6 +17,8 @@ class PantallaPregunta:
         self.particulas_confeti = []
         self.confeti_generado = False
         self.ultimo_resultado_fue_correcto = False
+        self.tiempo_inicio_pregunta = 0
+        self.TIEMPO_LIMITE = 60
     
     def configurar_pregunta(self, pregunta):
         """Configura una nueva pregunta con sus botones de respuesta"""
@@ -23,6 +26,7 @@ class PantallaPregunta:
         self.respuesta_correcta_mostrada = False
         self.confeti_generado = False
         
+        self.tiempo_inicio_pregunta = pygame.time.get_ticks()
         self.botones_respuesta = []
         y_inicial = 320
         for i, opcion in enumerate(pregunta["opciones"]):
@@ -56,7 +60,7 @@ class PantallaPregunta:
 
         # Título
         es_final = casilla_id == "META"
-        titulo_texto = "PREGUNTA FINAL" if es_final else f"Pregunta Casilla {casilla_id}"
+        titulo_texto = "PREGUNTA FINAL" if es_final else f"Pregunta #{casilla_id}"
 
         fuente_titulo = pygame.font.Font(None, 42)
         titulo = fuente_titulo.render(titulo_texto, True, DORADO if es_final else VERDE)
@@ -65,6 +69,10 @@ class PantallaPregunta:
         # Pregunta (Renderizado de texto multilinea)
         self._dibujar_pregunta_multilinea(pantalla)
 
+        # Temporizador
+        if not self.respuesta_correcta_mostrada:
+            self._dibujar_temporizador(pantalla)
+
         # Botones de respuesta
         for boton in self.botones_respuesta:
             boton.dibujar(pantalla)
@@ -72,6 +80,25 @@ class PantallaPregunta:
         # Efectos visuales de feedback
         self._dibujar_efectos_feedback(pantalla)
     
+    def _dibujar_temporizador(self, pantalla):
+        """Dibuja el temporizador visual de 60 segundos"""
+        tiempo_transcurrido = (pygame.time.get_ticks() - self.tiempo_inicio_pregunta) / 1000
+        segundos_restantes = max(0, self.TIEMPO_LIMITE - tiempo_transcurrido)
+        segundos_mostrar = int(math.ceil(segundos_restantes))
+
+        # Parpadeo rojo cuando quedan 5 segundos o menos
+        if segundos_restantes <= 5:
+            parpadeo = (pygame.time.get_ticks() // 300) % 2 == 0
+            color = ROJO if parpadeo else (150, 30, 20)
+        elif segundos_restantes <= 15:
+            color = AMARILLO
+        else:
+            color = BLANCO
+
+        fuente_timer = pygame.font.Font(None, 48)
+        texto = fuente_timer.render(f"{segundos_mostrar}s", True, color)
+        pantalla.blit(texto, (ANCHO - 120, 110))
+
     def _dibujar_pregunta_multilinea(self, pantalla):
         """Dibuja la pregunta dividida en múltiples líneas"""
         fuente_pregunta = pygame.font.Font(None, 32)
@@ -131,3 +158,4 @@ class PantallaPregunta:
         self.botones_respuesta = []
         self.respuesta_correcta_mostrada = False
         self.confeti_generado = False
+        self.tiempo_inicio_pregunta = 0

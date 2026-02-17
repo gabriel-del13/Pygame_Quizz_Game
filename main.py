@@ -198,8 +198,10 @@ class Juego:
         return True  # Continuar ejecutando
     
     def actualizar(self, teclas, mouse_pos):
-        self.fondo.tiempo_rio += 0.02  # Incrementar el tiempo para animar el río
-        self.fondo.actualizar_rio()  # Actualizar animación del río
+        dt = 1.0 / FPS
+        self.fondo.tiempo_rio += 0.02
+        self.fondo.actualizar_rio()
+        self.fondo.actualizar_animales(dt)
         """Actualiza la lógica del juego según el estado actual"""
         if self.estado == "jugando":
             # Mover personaje

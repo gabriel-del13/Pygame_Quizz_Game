@@ -15,8 +15,8 @@ class PantallaEleccion:
         self.botones_camino = []
         
         if len(siguientes_casillas) == 2:
-            boton1 = Boton(ANCHO//2 - 330, ALTO//2 - 40, 300, 60,
-                          f" Ir a Casilla {siguientes_casillas[1]}", VERDE)
+            label1 = "BONUS" if siguientes_casillas[1].startswith("3.") else f" Ir a Casilla {siguientes_casillas[1]}"
+            boton1 = Boton(ANCHO//2 - 330, ALTO//2 - 40, 300, 60, label1, VERDE)
             boton2 = Boton(ANCHO//2 + 30, ALTO//2 - 40, 300, 60,
                           f" Ir a Casilla {siguientes_casillas[0]}", AZUL)
             self.botones_camino = [(boton1, siguientes_casillas[1]), (boton2, siguientes_casillas[0])]
